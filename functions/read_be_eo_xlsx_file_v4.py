@@ -371,7 +371,11 @@ def read_be_2_eo_xlsx():
   krik_data['eo_code'] = krik_data['eo_code'].astype(str)
   krik_data['overhaul_plan_date'] = pd.to_datetime(krik_data['overhaul_plan_date'], format='%d.%m.%Y')
   krik_data['year'] = krik_data['overhaul_plan_date'].dt.year
+  krik_data['iteration'] = iterations_list[-1]
+  krik_data['год капремонта'] = krik_data['overhaul_plan_date'].dt.year
+  
 
+  
   be_master_data_temp = be_master_data.loc[:, ['eo_code', 'be_code', 'be_description', 'eo_class_code', 'eo_class_description', 'eo_category_spec', 'eo_model_name', 'type_tehniki', 'marka_oborudovania', 'eo_description', 'gar_no', 'constr_type', 'constr_type_descr', 'sap_user_status', 'sap_system_status', 'operation_start_date', 'expected_operation_period_years', 'operation_finish_date_calc', 'sap_planned_finish_operation_date', 'operation_finish_date_sap_upd', 'operation_finish_date']]
   
 
