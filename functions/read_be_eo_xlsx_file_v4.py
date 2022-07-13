@@ -1,6 +1,5 @@
 import pandas as pd
 from extensions import extensions
-from models.models import Eo_DB, Be_DB, LogsDB, Eo_data_conflicts, Eo_candidatesDB
 from initial_values.initial_values import be_data_columns_to_master_columns, year_dict
 from datetime import datetime
 from initial_values.initial_values import sap_user_status_cons_status_list, be_data_cons_status_list, sap_system_status_ban_list, operaton_status_translation, master_data_to_ru_columns
@@ -45,6 +44,8 @@ def read_be_2_eo_xlsx():
   # sql = "SELECT * FROM eo_DB JOIN be_DB"
   sql = "SELECT \
   eo_DB.eo_code, \
+  eo_DB.temp_eo_code, \
+  eo_DB.temp_eo_code_status, \
   eo_DB.be_code, \
   eo_DB.head_type, \
   be_DB.be_description, \
@@ -73,25 +74,28 @@ def read_be_2_eo_xlsx():
   LEFT JOIN operation_statusDB ON eo_DB.expected_operation_status_code = operation_statusDB.operation_status_code"
   
   master_eo_df = pd.read_sql_query(sql, con)
+  # подменяем временнные номера
+  master_eo_df_temp_eo = master_eo_df.loc[master_eo_df['temp_eo_code_status']=='temp_eo_code']
+  indexes_temp_eo = list(master_eo_df_temp_eo.index.values)
+  # print(master_eo_df_temp_eo['temp_eo_code'])
+  # print(list(master_eo_df_temp_eo.loc[indexes_temp_eo, ['temp_eo_code']]))  
+  master_eo_df.loc[indexes_temp_eo, ['eo_code']] = master_eo_df_temp_eo['temp_eo_code']
+  # print(master_eo_df.loc[indexes_temp_eo, ['eo_code']])
+  # print('должен быть список', master_eo_df.loc[indexes_temp_eo, ['eo_code']])
+  
   master_eo_df = master_eo_df.loc[master_eo_df['head_type']=='head']
   master_eo_df['operation_start_date'] = pd.to_datetime(master_eo_df['operation_start_date'])
   master_eo_df['sap_planned_finish_operation_date'] = pd.to_datetime(master_eo_df['sap_planned_finish_operation_date'])
   master_eo_df['operation_finish_date_sap_upd'] = pd.to_datetime(master_eo_df['operation_finish_date_sap_upd'])
   # джойним данные из файла с мастер-данными
   be_master_data = pd.merge(master_eo_df, be_eo_data, on='eo_code', how='left')
-  # be_master_data.to_csv('temp_data/be_master_data.csv')
 
+
+  
   result_data_list = []
-  # итерируемся по годам
-  # year_dict = {2022:{'period_start':'01.01.2022', 'period_end':'31.12.2022'}}
-  # iterations_list = ["operation_finish_date_iteration_0"]
-  
-  
-  
   
 
   # итерируемся по списку итераций
-  
   for iteration, iteration_rus in iterations_dict.items():
     be_master_data[iteration] = pd.to_datetime(be_master_data[iteration])
     be_master_data[iteration].fillna(date_time_plug, inplace = True)

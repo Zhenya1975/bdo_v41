@@ -100,6 +100,7 @@ class Eo_DB(db.Model):
   eo_id = db.Column(db.Integer, primary_key=True)
   eo_code = db.Column(db.String, unique=True, nullable=False)
   temp_eo_code = db.Column(db.String)
+  temp_eo_code_status = db.Column(db.String)
   eo_description = db.Column(db.String)
   be_code = db.Column(db.Integer, db.ForeignKey('be_DB.be_code'))
   teh_mesto = db.Column(db.String)

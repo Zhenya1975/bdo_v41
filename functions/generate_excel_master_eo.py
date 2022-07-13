@@ -30,6 +30,8 @@ def sql_to_eo_master():
   eo_DB.gar_no, \
   eo_DB.sap_gar_no, \
   eo_DB.eo_code, \
+  eo_DB.temp_eo_code, \
+  eo_DB.temp_eo_code_status, \
   eo_DB.eo_description, \
   eo_DB.head_type, \
   eo_DB.operation_start_date, \
