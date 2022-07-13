@@ -12,7 +12,7 @@ import shortuuid
 
 def create_short_uuid():
   result_df = []
-  for i in range(72):
+  for i in range(4):
     temp_dict = {}
     
     temp_dict['eo_code'] = shortuuid.uuid()

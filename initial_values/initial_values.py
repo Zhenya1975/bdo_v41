@@ -57,6 +57,26 @@ year_dict = {2022:{'period_start':'01.01.2022', 'period_end':'31.12.2022'},
                2034:{'period_start':'01.01.2034', 'period_end':'31.12.2034'},
                2035:{'period_start':'01.01.2035', 'period_end':'31.12.2035'}
               }
+month_dict = {
+  'июль 2022':{'period_start':'01.07.2022', 'period_end':'31.07.2022'},
+  'август 2022':{'period_start':'01.08.2022', 'period_end':'31.08.2022'},
+  'сентябрь 2022':{'period_start':'01.09.2022', 'period_end':'30.09.2022'},
+  'октябрь 2022':{'period_start':'01.10.2022', 'period_end':'31.10.2022'},
+  'ноябрь 2022':{'period_start':'01.11.2022', 'period_end':'30.11.2022'},
+  'декабрь 2022':{'period_start':'01.12.2022', 'period_end':'31.12.2022'},
+  'январь 2023':{'period_start':'01.01.2023', 'period_end':'31.01.2023'},
+  'февраль 2023':{'period_start':'01.02.2023', 'period_end':'28.02.2023'},
+  'март 2023':{'period_start':'01.03.2023', 'period_end':'31.03.2023'},
+  'апрель 2023':{'period_start':'01.04.2023', 'period_end':'30.04.2023'},
+  'май 2023':{'period_start':'01.05.2023', 'period_end':'31.05.2023'},
+  'июнь 2023':{'period_start':'01.06.2023', 'period_end':'30.06.2023'},
+  'июль 2023':{'period_start':'01.07.2023', 'period_end':'31.07.2023'},
+  'август 2023':{'period_start':'01.08.2023', 'period_end':'31.08.2023'},
+  'сентябрь 2023':{'period_start':'01.09.2023', 'period_end':'30.09.2023'},
+  'октябрь 2023':{'period_start':'01.10.2023', 'period_end':'31.10.2023'},
+  'ноябрь 2023':{'period_start':'01.11.2023', 'period_end':'30.11.2023'},
+  'декабрь 2023':{'period_start':'01.12.2023', 'period_end':'31.12.2023'},
+}
 operaton_status_translation = {
   "Эксплуатация":"in_operation",
   "эксплуатация":"in_operation",

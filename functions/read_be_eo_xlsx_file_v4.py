@@ -2,7 +2,7 @@ import pandas as pd
 from extensions import extensions
 from initial_values.initial_values import be_data_columns_to_master_columns, year_dict
 from datetime import datetime
-from initial_values.initial_values import sap_user_status_cons_status_list, be_data_cons_status_list, sap_system_status_ban_list, operaton_status_translation, master_data_to_ru_columns
+from initial_values.initial_values import sap_user_status_cons_status_list, be_data_cons_status_list, sap_system_status_ban_list, operaton_status_translation, master_data_to_ru_columns, month_dict
 import sqlite3
 from openpyxl.utils.dataframe import dataframe_to_rows
 import openpyxl
