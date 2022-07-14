@@ -112,7 +112,7 @@ def read_be_2_eo_xlsx():
     be_master_data.loc[indexes, ['operation_finish_date']] = be_master_data_temp[iteration]
 
     be_master_data['operation_finish_date'] = pd.to_datetime(be_master_data['operation_finish_date'])
-
+    
     # итерируемся по списку ео в загруженном файле
     i=0
     lenght = len(be_master_data)
