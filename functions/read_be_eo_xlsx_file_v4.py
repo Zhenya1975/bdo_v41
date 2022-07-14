@@ -66,7 +66,8 @@ def read_be_2_eo_xlsx():
   eo_DB.sap_planned_finish_operation_date, \
   eo_DB.operation_finish_date_sap_upd, \
   eo_DB.sap_system_status, \
-  eo_DB.sap_user_status \
+  eo_DB.sap_user_status, \
+  eo_DB.prodlenie_2022 \
   FROM eo_DB \
   LEFT JOIN models_DB ON eo_DB.eo_model_id = models_DB.eo_model_id \
   LEFT JOIN be_DB ON eo_DB.be_code = be_DB.be_code \
@@ -375,21 +376,36 @@ def read_be_2_eo_xlsx():
   krik_data['eo_code'] = krik_data['eo_code'].astype(str)
   krik_data['overhaul_plan_date'] = pd.to_datetime(krik_data['overhaul_plan_date'], format='%d.%m.%Y')
   krik_data['year'] = krik_data['overhaul_plan_date'].dt.year
-  krik_data['iteration'] = iterations_list[-1]
+  krik_data['iteration_name'] = iterations_dict[iterations_list[-1]]
   krik_data['год капремонта'] = krik_data['overhaul_plan_date'].dt.year
+  krik_data['operation_status'] = 'Эксплуатация'
   
 
   
-  be_master_data_temp = be_master_data.loc[:, ['eo_code', 'be_code', 'be_description', 'eo_class_code', 'eo_class_description', 'eo_category_spec', 'eo_model_name', 'type_tehniki', 'marka_oborudovania', 'eo_description', 'gar_no', 'constr_type', 'constr_type_descr', 'sap_user_status', 'sap_system_status', 'operation_start_date', 'expected_operation_period_years', 'operation_finish_date_calc', 'sap_planned_finish_operation_date', 'operation_finish_date_sap_upd', 'operation_finish_date']]
+  be_master_data_temp = be_master_data.loc[:, ['eo_code', 'be_code', 'be_description', 'eo_class_code', 'eo_class_description', 'eo_category_spec', 'eo_model_name', 'type_tehniki', 'marka_oborudovania', 'eo_description', 'gar_no', 'constr_type', 'constr_type_descr', 'sap_user_status', 'sap_system_status', 'operation_start_date', 'expected_operation_period_years', 'operation_finish_date_calc', 'sap_planned_finish_operation_date', 'operation_finish_date_sap_upd', 'operation_finish_date', 'prodlenie_2022']]
   
 
-  krik_data_eo = pd.merge(be_master_data_temp, krik_data, on='eo_code', how='left')
+  krik_data_eo = pd.merge(krik_data, be_master_data_temp, on='eo_code')
+  krik_data_eo = krik_data_eo.rename(columns=master_data_to_ru_columns)
+  print("start krik_data_eo excel")
+  wb = openpyxl.Workbook(write_only=True)
+  ws = wb.create_sheet("капремонты")
+  for r in dataframe_to_rows(krik_data_eo, index=True):
+    i=i+1
+    # print(i, " из ", lenght)
+    ws.append(r)
+
+  wb.save("temp_data/krik_data.xlsx")
+  print("finish krik_data_eo excel")
+  
   iterations_and_overhaul_df = pd.concat([iterations_df, krik_data_eo])
+  
   iterations_and_overhaul_df.to_csv('temp_data/iterations_and_overhaul_df.csv')
     
   iterations_df_rus = iterations_and_overhaul_df.rename(columns=master_data_to_ru_columns)
   # iterations_df.to_csv('temp_data/iterations_df.csv')
   # iterations_df.to_excel('temp_data/iterations_df.xlsx')
+  print("start full_data_eo excel")  
   wb = openpyxl.Workbook(write_only=True)
   ws = wb.create_sheet("Sheet1")
   
@@ -404,7 +420,7 @@ def read_be_2_eo_xlsx():
     ws.append(r)
 
   wb.save("temp_data/iterations_df.xlsx")
-
+  print("finish full_data_eo excel") 
   
   
   

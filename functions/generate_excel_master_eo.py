@@ -49,7 +49,8 @@ def sql_to_eo_master():
   eo_DB.finish_date_delta, \
   eo_DB.reported_operation_status, \
   eo_DB.reported_operation_status_date, \
-  eo_DB.evaluated_operation_finish_date \
+  eo_DB.evaluated_operation_finish_date, \
+  eo_DB.prodlenie_2022 \
   FROM eo_DB \
   LEFT JOIN models_DB ON eo_DB.eo_model_id = models_DB.eo_model_id \
   LEFT JOIN be_DB ON eo_DB.be_code = be_DB.be_code \

@@ -141,6 +141,7 @@ class Eo_DB(db.Model):
   conflict_data = db.relationship('Eo_data_conflicts', backref='conflict_data')
   logs_data = db.relationship('LogsDB', backref='logs_data')
   calendar_status = db.relationship('Eo_calendar_operation_status_DB', backref='calendar_status')
+  prodlenie_2022 = db.Column(db.Integer)
 
 class Operation_statusDB(db.Model):
   id = db.Column(db.Integer, primary_key=True)

@@ -162,6 +162,13 @@ def read_update_eo_data_xlsx():
         eo_master_data.type_mironov = type_mironov
         db.session.commit()
 
+      if 'prodlenie_2022' in update_eo_column_list:
+        prodlenie_2022 = getattr(row, 'prodlenie_2022')
+        eo_master_data.prodlenie_2022 = prodlenie_2022
+        db.session.commit()  
+
+        
+
       if 'short_description_mironov' in update_eo_column_list:
         short_description_mironov = getattr(row, 'short_description_mironov')
         eo_master_data.short_description_mironov = short_description_mironov
