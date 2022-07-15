@@ -86,6 +86,10 @@ def read_be_2_eo_xlsx():
   
   master_eo_df = master_eo_df.loc[master_eo_df['head_type']=='head']
   master_eo_df['operation_start_date'] = pd.to_datetime(master_eo_df['operation_start_date'])
+
+  master_eo_df['operation_start_date_month'] = ((master_eo_df['operation_start_date'] + pd.offsets.MonthEnd(0) - pd.offsets.MonthBegin(1)).dt.floor('d'))
+  master_eo_df.to_csv('temp_data/master_eo_df_month.csv')
+  
   master_eo_df['sap_planned_finish_operation_date'] = pd.to_datetime(master_eo_df['sap_planned_finish_operation_date'])
   master_eo_df['operation_finish_date_sap_upd'] = pd.to_datetime(master_eo_df['operation_finish_date_sap_upd'])
   # джойним данные из файла с мастер-данными
@@ -125,11 +129,62 @@ def read_be_2_eo_xlsx():
     operation_status_from_file = getattr(row, "operation_status") # статус, полученный из файла
 
     operation_start_date = getattr(row, 'operation_start_date')
+    operation_start_date_month = getattr(row, 'operation_start_date_month')
     expected_operation_period_years = getattr(row, 'expected_operation_period_years')
     operation_finish_date_calc = getattr(row, 'operation_finish_date_calc')
     sap_planned_finish_operation_date = getattr(row, 'sap_planned_finish_operation_date')
     operation_finish_date_sap_upd = getattr(row, 'operation_finish_date_sap_upd')
     # operation_finish_date_update_iteration = getattr(row, iteration)
     operation_finish_date = getattr(row, 'operation_finish_date')
-    if eo_code == '100000061761':
-      print(eo_code)
+    
+    # сначала определяем статус ввода в эксплуатацию
+    status_condition_dict = {
+        "new":"Ввод нового",
+        "on_balance":"На балансе",
+        "conservation":"Консервация",
+        "remake":"Переоборудование",
+        "out":"План на вывод",
+        "in_operation":"Эксплуатация"
+      }
+    for status_condition, status_condition_rus in status_condition_dict.items():
+      temp_dict = {}
+      if status_condition == "new":
+        # проверяем чтобы ео не была в консервации и в удаленных
+        if sap_user_status not in sap_user_status_cons_status_list and \
+        sap_system_status not in sap_system_status_ban_list:
+          temp_dict['eo_code'] = eo_code
+          temp_dict['operation_start_date'] = operation_start_date
+          temp_dict['operation_start_date_month'] = operation_start_date_month
+          temp_dict['be_description'] = be_description
+          temp_dict['eo_class_code'] = eo_class_code
+          temp_dict['eo_class_description'] = eo_class_description
+          temp_dict['eo_model_name'] = eo_model_name
+          temp_dict['eo_category_spec'] = eo_category_spec
+          temp_dict['type_tehniki'] = type_tehniki
+          temp_dict['marka_oborudovania'] = marka_oborudovania
+          temp_dict['eo_description'] = eo_description
+          temp_dict['operation_status'] = "Ввод нового"
+          temp_dict['qty'] = 1
+          temp_dict['Ввод нового'] = 1
+          
+          result_data_list.append(temp_dict)
+
+
+  iter_df_temp = pd.DataFrame(result_data_list) 
+  wb = openpyxl.Workbook(write_only=True)
+  ws = wb.create_sheet("Sheet1")
+  
+  i=0
+  iter_df_temp.reset_index()
+  print(len(iter_df_temp))
+  
+  for r in dataframe_to_rows(iter_df_temp, index=True):
+    i=i+1
+    # print(i, " из ", lenght)
+    ws.append(r)
+
+  wb.save("temp_data/iter_df_temp.xlsx")
+  
+
+    # if eo_code == '100000061761':
+    #   print(eo_code)
