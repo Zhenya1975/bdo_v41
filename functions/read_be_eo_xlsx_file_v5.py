@@ -38,6 +38,7 @@ def read_be_2_eo_xlsx():
   be_eo_data['operation_finish_date_iteration_1'] = pd.to_datetime(be_eo_data['operation_finish_date_iteration_1'], format='%d.%m.%Y')
   be_eo_data['operation_finish_date_iteration_2'] = pd.to_datetime(be_eo_data['operation_finish_date_iteration_2'], format='%d.%m.%Y')
   be_eo_data['conservation_start_date'] = pd.to_datetime(be_eo_data['conservation_start_date'], format='%d.%m.%Y')
+  be_eo_data['conservation_start_date'] = pd.to_datetime(be_eo_data['conservation_start_date'], format='%d.%m.%Y')
 
   # получаем данные из мастер-файла
   con = sqlite3.connect("database/datab.db")
@@ -129,6 +130,7 @@ def read_be_2_eo_xlsx():
     # operation_status_rus = getattr(row, "operation_status")
     sap_user_status = getattr(row, "sap_user_status")
     sap_system_status = getattr(row, "sap_system_status")
+    sap_user_statussap_system_status = getattr(row, "sap_system_status")
     operation_status_from_file = getattr(row, "operation_status") # статус, полученный из файла
 
     operation_start_date = getattr(row, 'operation_start_date')
@@ -140,6 +142,7 @@ def read_be_2_eo_xlsx():
     # operation_finish_date_update_iteration = getattr(row, iteration)
     operation_finish_date = getattr(row, 'operation_finish_date')
     operation_finish_date_month = getattr(row, 'operation_finish_date_month')
+    conservation_start_date = getattr(row, 'conservation_start_date')
     
     # сначала определяем статус ввода в эксплуатацию
     status_condition_dict = {
@@ -167,7 +170,8 @@ def read_be_2_eo_xlsx():
           temp_dict['type_tehniki'] = type_tehniki
           temp_dict['marka_oborudovania'] = marka_oborudovania
           temp_dict['eo_description'] = eo_description
-          
+          temp_dict['sap_system_status'] = sap_system_status
+          temp_dict['sap_user_status'] = sap_user_status          
           temp_dict['operation_start_date'] = operation_start_date
           temp_dict['operation_finish_date'] = operation_finish_date
           temp_dict['month_date'] = operation_start_date_month
@@ -190,6 +194,8 @@ def read_be_2_eo_xlsx():
           temp_dict['type_tehniki'] = type_tehniki
           temp_dict['marka_oborudovania'] = marka_oborudovania
           temp_dict['eo_description'] = eo_description
+          temp_dict['sap_system_status'] = sap_system_status
+          temp_dict['sap_user_status'] = sap_user_status 
           temp_dict['operation_start_date'] = operation_start_date
           temp_dict['operation_finish_date'] = operation_finish_date
           temp_dict['month_date'] = operation_finish_date_month
@@ -222,35 +228,73 @@ def read_be_2_eo_xlsx():
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
             temp_dict['eo_description'] = eo_description
+            temp_dict['sap_system_status'] = sap_system_status
+            temp_dict['sap_user_status'] = sap_user_status 
             temp_dict['operation_start_date'] = operation_start_date
             temp_dict['operation_finish_date'] = operation_finish_date
             temp_dict['operation_status'] = "Эксплуатация"
             temp_dict['qty'] = 1
             temp_dict['Эксплуатация'] = 1
-            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
             # print("time_operation_point_date: ", time_operation_point_date)
             # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
             # print(time_operation_point)
-            if time_operation_point_date >=datetime.strptime('1.1.2022', '%d.%m.%Y'): #and \
+            # if time_operation_point_date >=datetime.strptime('1.1.2022', '%d.%m.%Y'): #and \
             # time_operation_point_date <= datetime.strptime('31.12.2023', '%d.%m.%Y'):
               # print(time_operation_point)
-              temp_dict['month_date'] = time_operation_point_date
+            temp_dict['month_date'] = time_operation_point_date
               # print("time_operation_point_date: ", time_operation_point_date)
               # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
               # print(temp_dict)
-              result_data_list.append(temp_dict)
+            result_data_list.append(temp_dict)
+            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
             
-                                                         
-            # if today.day > 25:
-            #     print(first_day + relativedelta(months=1))
-            # else:
-            #     print(first_day)
             
-
+      if status_condition == "conservation":
+        
+        if (sap_user_status in sap_user_status_cons_status_list or \
+        operation_status_from_file == "Консервация") and \
+        sap_system_status not in sap_system_status_ban_list:
+        # operation_start_date <= datetime.strptime('31.12.2023', '%d.%m.%Y') and \
+        # operation_finish_date >= datetime.strptime('1.1.2022', '%d.%m.%Y'):
+          time_operation_point_date = conservation_start_date
+          conservation_finish_date = operation_finish_date
+          # первый день в месяце 
+          time_operation_point_date = time_operation_point_date.replace(day=1)
+          # if eo_code == '100000065592':
+          while time_operation_point_date <= conservation_finish_date:
+            temp_dict = {}
+            temp_dict['eo_code'] = eo_code
+            temp_dict['be_description'] = be_description
+            temp_dict['eo_class_code'] = eo_class_code
+            temp_dict['eo_class_description'] = eo_class_description
+            temp_dict['eo_model_name'] = eo_model_name
+            temp_dict['eo_category_spec'] = eo_category_spec
+            temp_dict['type_tehniki'] = type_tehniki
+            temp_dict['marka_oborudovania'] = marka_oborudovania
+            temp_dict['eo_description'] = eo_description
+            temp_dict['sap_system_status'] = sap_system_status
+            temp_dict['sap_user_status'] = sap_user_status 
+            temp_dict['operation_start_date'] = operation_start_date
+            temp_dict['operation_finish_date'] = operation_finish_date
+            temp_dict['conservation_start_date'] = conservation_start_date
+            temp_dict['conservation_finish_date'] = conservation_finish_date
+            temp_dict['operation_status'] = "Консервация"
+            temp_dict['qty'] = 1
+            temp_dict['Консервация'] = 1
+            temp_dict['month_date'] = time_operation_point_date
+            result_data_list.append(temp_dict)
+            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
 
           
 
   iter_df_temp = pd.DataFrame(result_data_list) 
+  iter_df_temp['eo_count'] = iter_df_temp['eo_code']
+  
+  # режем результат по началу 22-го года
+  iter_df_temp = iter_df_temp.loc[iter_df_temp['month_date']>=datetime.strptime('1.1.2022', '%d.%m.%Y')]
+  
+  # iter_df_temp["month_date"] = iter_df_temp["month_date"].dt.strftime("%d.%m.%Y")
+  
   wb = openpyxl.Workbook(write_only=True)
   ws = wb.create_sheet("Sheet1")
   
