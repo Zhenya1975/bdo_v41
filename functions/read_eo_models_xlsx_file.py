@@ -26,6 +26,8 @@ def read_eo_models_xlsx():
     eo_category_spec = getattr(row, 'eo_category_spec')
     marka_oborudovania = getattr(row, 'marka_oborudovania')
     type_tehniki = getattr(row, 'type_tehniki')
+    cost_center = getattr(row, 'cost_center')
+
     if eo_category_spec !='nan':
       # проверяем есть ли запись
       eo_model_record = Models_DB.query.filter_by(id=id).first()
@@ -35,9 +37,10 @@ def read_eo_models_xlsx():
         eo_model_record.eo_category_spec = eo_category_spec
         eo_model_record.marka_oborudovania = marka_oborudovania
         eo_model_record.type_tehniki = type_tehniki
+        eo_model_record.cost_center = cost_center
         db.session.commit()
       else:
-        new_model_record = Models_DB(eo_model_id = eo_model_id, eo_model_name = eo_model_name, eo_category_spec = eo_category_spec, marka_oborudovania = marka_oborudovania, type_tehniki = type_tehniki)
+        new_model_record = Models_DB(eo_model_id = eo_model_id, eo_model_name = eo_model_name, eo_category_spec = eo_category_spec, marka_oborudovania = marka_oborudovania, type_tehniki = type_tehniki, cost_center=cost_center)
         db.session.add(new_model_record)
         db.session.commit()
       

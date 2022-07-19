@@ -161,6 +161,7 @@ class Models_DB(db.Model):
   eo_category_spec = db.Column(db.String)
   type_tehniki = db.Column(db.String)
   marka_oborudovania = db.Column(db.String)
+  cost_center = db.Column(db.String)
 
 class Eo_class_DB(db.Model):
   id = db.Column(db.Integer, primary_key=True)
