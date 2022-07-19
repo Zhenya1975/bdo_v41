@@ -34,7 +34,8 @@ master_data_to_ru_columns = {
   "constr_type_descr":"Тип конструкции Описание",
   "overhaul_type":'Вид ремонта',
   "overhaul_plan_date":"Дата ремонта 6+6",
-  "Cost_rub":"Стоимость капремонта руб"
+  "Cost_rub":"Стоимость капремонта руб",
+  "cost_center":"Центр затрат"
   }
 
 sap_system_status_ban_list = ['МТКУ НЕАК УСТН', 'МТКУ ПВЕО', 'МТКУ УСТН']

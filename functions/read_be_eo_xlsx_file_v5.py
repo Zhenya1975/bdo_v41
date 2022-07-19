@@ -53,18 +53,12 @@ def read_be_2_eo_xlsx():
   be_DB.be_description, \
   eo_DB.eo_class_code, \
   eo_class_DB.eo_class_description, \
-  eo_DB.eo_model_id, \
-  eo_DB.constr_type, \
-  eo_DB.constr_type_descr, \
-  eo_DB.maker, \
-  eo_DB.sap_maker, \
-  eo_DB.gar_no, \
-  eo_DB.teh_mesto, \
-  models_DB.cost_center, \
   models_DB.eo_model_name, \
   models_DB.eo_category_spec, \
   models_DB.type_tehniki, \
   models_DB.marka_oborudovania, \
+  models_DB.cost_center, \
+  eo_DB.eo_model_id, \
   eo_DB.eo_description, \
   eo_DB.gar_no, \
   eo_DB.constr_type, \
@@ -131,7 +125,7 @@ def read_be_2_eo_xlsx():
 
   result_data_list = []
   i=0
-  # lenght = len(be_master_data)
+  lenght = len(be_master_data)
   for row in be_master_data.itertuples():
     i=i+1
     # print("eo ", ", ", i, " из ", lenght)
@@ -144,11 +138,6 @@ def read_be_2_eo_xlsx():
     # eo_model_id = getattr(row, 'eo_model_id')
     eo_category_spec = getattr(row, 'eo_category_spec')
     type_tehniki = getattr(row, 'type_tehniki')
-    maker = getattr(row, 'maker')
-    sap_maker = getattr(row, 'sap_maker')
-    gar_no = getattr(row, 'gar_no')
-    teh_mesto = getattr(row, 'teh_mesto')
-    cost_center = getattr(row, 'cost_center')
     marka_oborudovania = getattr(row, 'marka_oborudovania')
     
     eo_description = getattr(row, "eo_description")
@@ -158,6 +147,7 @@ def read_be_2_eo_xlsx():
     # operation_status_rus = getattr(row, "operation_status")
     sap_user_status = getattr(row, "sap_user_status")
     sap_system_status = getattr(row, "sap_system_status")
+    cost_center = getattr(row, "cost_center")
     operation_status_from_file = getattr(row, "operation_status") # статус, полученный из файла
 
     operation_start_date = getattr(row, 'operation_start_date')
@@ -191,6 +181,7 @@ def read_be_2_eo_xlsx():
             temp_dict = {}
             temp_dict['eo_code'] = eo_code
             temp_dict['be_code'] = be_code
+       
             temp_dict['be_description'] = be_description
             temp_dict['eo_class_code'] = eo_class_code
             temp_dict['eo_class_description'] = eo_class_description
@@ -198,7 +189,7 @@ def read_be_2_eo_xlsx():
             temp_dict['eo_category_spec'] = eo_category_spec
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['maker'] = maker
+            temp_dict['cost_center'] = cost_center
             
             temp_dict['eo_description'] = eo_description
             temp_dict['sap_system_status'] = sap_system_status
@@ -234,7 +225,9 @@ def read_be_2_eo_xlsx():
             temp_dict['eo_category_spec'] = eo_category_spec
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['maker'] = maker
+            temp_dict['cost_center'] = cost_center
+
+            
             temp_dict['eo_description'] = eo_description
             temp_dict['sap_system_status'] = sap_system_status
             temp_dict['sap_user_status'] = sap_user_status 
@@ -278,7 +271,9 @@ def read_be_2_eo_xlsx():
             temp_dict['eo_category_spec'] = eo_category_spec
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['maker'] = maker
+            temp_dict['cost_center'] = cost_center
+
+            
             temp_dict['eo_description'] = eo_description
             temp_dict['sap_system_status'] = sap_system_status
             temp_dict['sap_user_status'] = sap_user_status 
@@ -307,7 +302,9 @@ def read_be_2_eo_xlsx():
           temp_dict['eo_category_spec'] = eo_category_spec
           temp_dict['type_tehniki'] = type_tehniki
           temp_dict['marka_oborudovania'] = marka_oborudovania
-          temp_dict['maker'] = maker
+          temp_dict['cost_center'] = cost_center
+
+          
           temp_dict['eo_description'] = eo_description
           temp_dict['sap_system_status'] = sap_system_status
           temp_dict['sap_user_status'] = sap_user_status          
@@ -333,7 +330,9 @@ def read_be_2_eo_xlsx():
           temp_dict['eo_category_spec'] = eo_category_spec
           temp_dict['type_tehniki'] = type_tehniki
           temp_dict['marka_oborudovania'] = marka_oborudovania
-          temp_dict['maker'] = maker
+          temp_dict['cost_center'] = cost_center
+
+          
           temp_dict['eo_description'] = eo_description
           temp_dict['sap_system_status'] = sap_system_status
           temp_dict['sap_user_status'] = sap_user_status 
@@ -353,24 +352,30 @@ def read_be_2_eo_xlsx():
   
   # режем результат по началу 22-го года
   iter_df_temp = iter_df_temp.loc[iter_df_temp['month_date']>=datetime.strptime('1.1.2022', '%d.%m.%Y')]
-
-  iter_df_temp = iter_df_temp.rename(columns=master_data_to_ru_columns)
-  # iter_df_temp["month_date"] = iter_df_temp["month_date"].dt.strftime("%d.%m.%Y")
-  
-  wb = openpyxl.Workbook(write_only=True)
-  ws = wb.create_sheet("Sheet1")
-  
-  i=0
+  # iter_df_temp = iter_df_temp.rename(columns=master_data_to_ru_columns)
   iter_df_temp.reset_index()
-  print(len(iter_df_temp))
   
-  for r in dataframe_to_rows(iter_df_temp, index=False, header=True):
-    i=i+1
-    # print(i, " из ", lenght)
-    ws.append(r)
-
-  wb.save("temp_data/iter_df_temp.xlsx")
+  list_of_be = list(set(iter_df_temp['be_code']))
+  # list_of_be = [1100]
+  for be_code in list_of_be:
+    df = iter_df_temp.loc[iter_df_temp['be_code']==be_code]
+    
+    # iter_df_temp["month_date"] = iter_df_temp["month_date"].dt.strftime("%d.%m.%Y")
+    
+    wb = openpyxl.Workbook(write_only=True)
+    ws = wb.create_sheet("Sheet1")
+    
+    i=0
+    
+    print(be_code, ": ", len(df))
+    df = df.rename(columns=master_data_to_ru_columns)
+    for r in dataframe_to_rows(df, index=False, header=True):
+      i=i+1
+      # print(i, " из ", lenght)
+      ws.append(r)
   
-
-    # if eo_code == '100000061761':
-    #   print(eo_code)
+    wb.save(f"temp_data/df_{be_code}.xlsx")
+    
+  
+      # if eo_code == '100000061761':
+      #   print(eo_code)
