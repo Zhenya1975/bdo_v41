@@ -84,7 +84,8 @@ def read_be_2_eo_xlsx():
   eo_DB.operation_finish_date_sap_upd, \
   eo_DB.sap_system_status, \
   eo_DB.sap_user_status, \
-  eo_DB.prodlenie_2022 \
+  eo_DB.prodlenie_2022, \
+  eo_DB.custom_eo_status \
   FROM eo_DB \
   LEFT JOIN models_DB ON eo_DB.eo_model_id = models_DB.eo_model_id \
   LEFT JOIN be_DB ON eo_DB.be_code = be_DB.be_code \
@@ -145,6 +146,7 @@ def read_be_2_eo_xlsx():
     be_master_data['repair_finish_date'].fillna(date_time_plug, inplace = True)
     be_master_data['os'].fillna(plug, inplace = True)
     # be_master_data.to_csv('temp_data/be_master_data_delete.csv')
+    be_master_data = be_master_data.loc[be_master_data['custom_eo_status'] != 'delete']
     for row in be_master_data.itertuples():
       i=i+1
       # print("eo ", ", ", i, " из ", lenght)
@@ -182,6 +184,7 @@ def read_be_2_eo_xlsx():
       conservation_start_date = getattr(row, 'conservation_start_date')
       repair_start_date = getattr(row, 'repair_start_date')
       repair_finish_date = getattr(row, 'repair_finish_date')
+      custom_eo_status = getattr(row, 'custom_eo_status')
       
       
       # сначала определяем статус ввода в эксплуатацию

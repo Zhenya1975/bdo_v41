@@ -167,22 +167,14 @@ def read_update_eo_data_xlsx():
         eo_master_data.prodlenie_2022 = prodlenie_2022
         db.session.commit()  
 
+      if 'custom_eo_status' in update_eo_column_list:
+        custom_eo_status = getattr(row, 'custom_eo_status')
+        eo_master_data.custom_eo_status = custom_eo_status
+        db.session.commit()   
+
         
 
-      if 'short_description_mironov' in update_eo_column_list:
-        short_description_mironov = getattr(row, 'short_description_mironov')
-        eo_master_data.short_description_mironov = short_description_mironov
-        db.session.commit()
 
-      if 'marka_modeli_mironov' in update_eo_column_list:
-        marka_modeli_mironov = getattr(row, 'marka_modeli_mironov')
-        eo_master_data.marka_modeli_mironov = marka_modeli_mironov
-        db.session.commit()  
-
-      if 'marka_oborudovania_mironov' in update_eo_column_list:
-        marka_oborudovania_mironov = getattr(row, 'marka_oborudovania_mironov')
-        eo_master_data.marka_oborudovania_mironov = marka_oborudovania_mironov
-        db.session.commit()   
       
 
     else:
