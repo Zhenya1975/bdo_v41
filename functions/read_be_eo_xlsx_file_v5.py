@@ -49,11 +49,9 @@ def read_be_2_eo_xlsx():
   # пишем заглушки в поля conservation_finish_date, repair_start_date, repair_finish_date
   
   be_eo_data['conservation_finish_date'].fillna(date_time_plug, inplace = True)
-  be_eo_data['repair_start_date'].fillna(date_time_plug, inplace = True)
-  be_eo_data['repair_finish_date'].fillna(date_time_plug, inplace = True)
-  be_eo_data['os'].fillna(plug, inplace = True)
+  
 
-  be_eo_data.to_csv('temp_data/be_eo_data_temp_delete.csv')
+  
   
 
   # получаем данные из мастер-файла
@@ -116,6 +114,7 @@ def read_be_2_eo_xlsx():
   
   be_master_data = pd.merge(master_eo_df, be_eo_data, on='eo_code', how='left')
   
+  
   #### обновление даты завершения из колонки Итерации 
   for iteration, iteration_rus in iterations_dict.items():
     be_master_data[iteration] = pd.to_datetime(be_master_data[iteration])
@@ -139,245 +138,68 @@ def read_be_2_eo_xlsx():
 
     be_master_data['operation_finish_date_month'] = ((be_master_data['operation_finish_date'] + pd.offsets.MonthEnd(0) - pd.offsets.MonthBegin(1)).dt.floor('d'))
 
-  result_data_list = []
-  slide_1_diagram_data = []
-  i=0
-  lenght = len(be_master_data)
-  for row in be_master_data.itertuples():
-    i=i+1
-    # print("eo ", ", ", i, " из ", lenght)
-    eo_code = getattr(row, 'eo_code')
-    be_code = getattr(row, 'be_code')
-    be_description = getattr(row, 'be_description')
-    eo_class_code = getattr(row, 'eo_class_code')
-    eo_class_description = getattr(row, 'eo_class_description')
-    eo_model_name = getattr(row, 'eo_model_name')
-    # eo_model_id = getattr(row, 'eo_model_id')
-    eo_category_spec = getattr(row, 'eo_category_spec')
-    type_tehniki = getattr(row, 'type_tehniki')
-    marka_oborudovania = getattr(row, 'marka_oborudovania')
-    
-    eo_description = getattr(row, "eo_description")
-    gar_no = getattr(row, "gar_no")
-    constr_type = getattr(row, "constr_type")
-    constr_type_descr = getattr(row, "constr_type_descr")
-    # operation_status_rus = getattr(row, "operation_status")
-    sap_user_status = getattr(row, "sap_user_status")
-    sap_system_status = getattr(row, "sap_system_status")
-    cost_center = getattr(row, "cost_center")
-    operation_status_from_file = getattr(row, "operation_status") # статус, полученный из файла
-
-    operation_start_date = getattr(row, 'operation_start_date')
-    operation_start_date_month = getattr(row, 'operation_start_date_month')
-    expected_operation_period_years = getattr(row, 'expected_operation_period_years')
-    operation_finish_date_calc = getattr(row, 'operation_finish_date_calc')
-    sap_planned_finish_operation_date = getattr(row, 'sap_planned_finish_operation_date')
-    operation_finish_date_sap_upd = getattr(row, 'operation_finish_date_sap_upd')
-    # operation_finish_date_update_iteration = getattr(row, iteration)
-    operation_finish_date = getattr(row, 'operation_finish_date')
-    operation_finish_date_month = getattr(row, 'operation_finish_date_month')
-    conservation_start_date = getattr(row, 'conservation_start_date')
-    repair_start_date = getattr(row, 'repair_start_date')
-    repair_finish_date = getattr(row, 'repair_finish_date')
-    
-    
-    # сначала определяем статус ввода в эксплуатацию
-    status_condition_dict = {
-        "new":"Ввод нового",
-        "on_balance":"На балансе",
-        "conservation":"Консервация",
-        "remake":"Переоборудование",
-        "out":"План на вывод",
-        "in_operation":"Эксплуатация",
-        "out_of_order":"Неисправно"
-      }
-    for status_condition, status_condition_rus in status_condition_dict.items():
+    result_data_list = []
+    i=0
+    lenght = len(be_master_data)
+    be_master_data['repair_start_date'].fillna(date_time_plug, inplace = True)
+    be_master_data['repair_finish_date'].fillna(date_time_plug, inplace = True)
+    be_master_data['os'].fillna(plug, inplace = True)
+    be_master_data.to_csv('temp_data/be_master_data_delete.csv')
+    for row in be_master_data.itertuples():
+      i=i+1
+      # print("eo ", ", ", i, " из ", lenght)
+      eo_code = getattr(row, 'eo_code')
+      be_code = getattr(row, 'be_code')
+      be_description = getattr(row, 'be_description')
+      eo_class_code = getattr(row, 'eo_class_code')
+      eo_class_description = getattr(row, 'eo_class_description')
+      eo_model_name = getattr(row, 'eo_model_name')
+      # eo_model_id = getattr(row, 'eo_model_id')
+      eo_category_spec = getattr(row, 'eo_category_spec')
+      type_tehniki = getattr(row, 'type_tehniki')
+      marka_oborudovania = getattr(row, 'marka_oborudovania')
       
-      if status_condition == "on_balance":
-        if sap_system_status not in sap_system_status_ban_list:
-          time_operation_point_date = operation_start_date
-          # первый день в месяце 
-          time_operation_point_date = time_operation_point_date.replace(day=1)
-          while time_operation_point_date <= operation_finish_date:
-            temp_dict = {}
-            temp_dict['eo_code'] = eo_code
-            temp_dict['be_code'] = be_code
-       
-            temp_dict['be_description'] = be_description
-            temp_dict['eo_class_code'] = eo_class_code
-            temp_dict['eo_class_description'] = eo_class_description
-            temp_dict['eo_model_name'] = eo_model_name
-            temp_dict['eo_category_spec'] = eo_category_spec
-            temp_dict['type_tehniki'] = type_tehniki
-            temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['cost_center'] = cost_center
-            
-            temp_dict['eo_description'] = eo_description
-            temp_dict['sap_system_status'] = sap_system_status
-            temp_dict['sap_user_status'] = sap_user_status 
-            temp_dict['operation_start_date'] = operation_start_date
-            temp_dict['operation_finish_date'] = operation_finish_date
-            temp_dict['operation_status'] = "На балансе"
-            temp_dict['qty'] = 1
-            temp_dict['На балансе'] = 1
-            temp_dict['month_date'] = time_operation_point_date
-            result_data_list.append(temp_dict)
-            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
+      eo_description = getattr(row, "eo_description")
+      gar_no = getattr(row, "gar_no")
+      constr_type = getattr(row, "constr_type")
+      constr_type_descr = getattr(row, "constr_type_descr")
+      # operation_status_rus = getattr(row, "operation_status")
+      sap_user_status = getattr(row, "sap_user_status")
+      sap_system_status = getattr(row, "sap_system_status")
+      cost_center = getattr(row, "cost_center")
+      operation_status_from_file = getattr(row, "operation_status") # статус, полученный из файла
+  
+      operation_start_date = getattr(row, 'operation_start_date')
+      operation_start_date_month = getattr(row, 'operation_start_date_month')
+      expected_operation_period_years = getattr(row, 'expected_operation_period_years')
+      operation_finish_date_calc = getattr(row, 'operation_finish_date_calc')
+      sap_planned_finish_operation_date = getattr(row, 'sap_planned_finish_operation_date')
+      operation_finish_date_sap_upd = getattr(row, 'operation_finish_date_sap_upd')
+      # operation_finish_date_update_iteration = getattr(row, iteration)
+      operation_finish_date = getattr(row, 'operation_finish_date')
+      operation_finish_date_month = getattr(row, 'operation_finish_date_month')
+      conservation_start_date = getattr(row, 'conservation_start_date')
+      repair_start_date = getattr(row, 'repair_start_date')
+      repair_finish_date = getattr(row, 'repair_finish_date')
       
-      if status_condition == "in_operation":
+      
+      # сначала определяем статус ввода в эксплуатацию
+      status_condition_dict = {
+          "new":"Ввод нового",
+          "on_balance":"На балансе",
+          "conservation":"Консервация",
+          "remake":"Переоборудование",
+          "out":"План на вывод",
+          "in_operation":"Эксплуатация",
+          "out_of_order":"Неисправно"
+        }
+      for status_condition, status_condition_rus in status_condition_dict.items():
         
-        if sap_user_status not in sap_user_status_cons_status_list and \
-        operation_status_from_file != "Консервация" and \
-        sap_system_status not in sap_system_status_ban_list:
-        # operation_start_date <= datetime.strptime('31.12.2023', '%d.%m.%Y') and \
-        # operation_finish_date >= datetime.strptime('1.1.2022', '%d.%m.%Y'):
-          time_operation_point_date = operation_start_date
-          # первый день в месяце 
-          time_operation_point_date = time_operation_point_date.replace(day=1)
-          
-
-          # if eo_code == '100000065592':
-          while time_operation_point_date <= operation_finish_date:
-            temp_dict = {}
-            temp_dict['eo_code'] = eo_code
-            temp_dict['be_code'] = be_code
-            temp_dict['be_description'] = be_description
-            temp_dict['eo_class_code'] = eo_class_code
-            temp_dict['eo_class_description'] = eo_class_description
-            temp_dict['eo_model_name'] = eo_model_name
-            temp_dict['eo_category_spec'] = eo_category_spec
-            temp_dict['type_tehniki'] = type_tehniki
-            temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['cost_center'] = cost_center
-
-            
-            temp_dict['eo_description'] = eo_description
-            temp_dict['sap_system_status'] = sap_system_status
-            temp_dict['sap_user_status'] = sap_user_status 
-            temp_dict['operation_start_date'] = operation_start_date
-            temp_dict['operation_finish_date'] = operation_finish_date
-            temp_dict['operation_status'] = "Эксплуатация"
-            temp_dict['qty'] = 1
-            temp_dict['Эксплуатация'] = 1
-            # print("time_operation_point_date: ", time_operation_point_date)
-            # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
-            # print(time_operation_point)
-            # if time_operation_point_date >=datetime.strptime('1.1.2022', '%d.%m.%Y'): #and \
-            # time_operation_point_date <= datetime.strptime('31.12.2023', '%d.%m.%Y'):
-              # print(time_operation_point)
-            temp_dict['month_date'] = time_operation_point_date
-            age = (time_operation_point_date - operation_start_date).days / 365.25
-            temp_dict['age'] = age
-            temp_dict['diagram_eo_count_in_operation'] = eo_code
-            temp_dict['diagram_year'] = time_operation_point_date.year
-              # print("time_operation_point_date: ", time_operation_point_date)
-              # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
-              # print(temp_dict)
-            result_data_list.append(temp_dict)
-            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
-
-      if status_condition == "conservation":
-        if (sap_user_status in sap_user_status_cons_status_list or \
-        operation_status_from_file == "Консервация") and \
-        sap_system_status not in sap_system_status_ban_list:
-        # operation_start_date <= datetime.strptime('31.12.2023', '%d.%m.%Y') and \
-        # operation_finish_date >= datetime.strptime('1.1.2022', '%d.%m.%Y'):
-          time_operation_point_date = conservation_start_date
-          conservation_finish_date = operation_finish_date
-          # первый день в месяце 
-          time_operation_point_date = time_operation_point_date.replace(day=1)
-          # if eo_code == '100000065592':
-          while time_operation_point_date <= conservation_finish_date:
-            temp_dict = {}
-            temp_dict['eo_code'] = eo_code
-            temp_dict['be_code'] = be_code
-            temp_dict['be_description'] = be_description
-            temp_dict['eo_class_code'] = eo_class_code
-            temp_dict['eo_class_description'] = eo_class_description
-            temp_dict['eo_model_name'] = eo_model_name
-            temp_dict['eo_category_spec'] = eo_category_spec
-            temp_dict['type_tehniki'] = type_tehniki
-            temp_dict['marka_oborudovania'] = marka_oborudovania
-            temp_dict['cost_center'] = cost_center
-
-            
-            temp_dict['eo_description'] = eo_description
-            temp_dict['sap_system_status'] = sap_system_status
-            temp_dict['sap_user_status'] = sap_user_status 
-            temp_dict['operation_start_date'] = operation_start_date
-            temp_dict['operation_finish_date'] = operation_finish_date
-            temp_dict['conservation_start_date'] = conservation_start_date
-            temp_dict['conservation_finish_date'] = conservation_finish_date
-            temp_dict['operation_status'] = "Консервация"
-            temp_dict['qty'] = 1
-            temp_dict['Консервация'] = 1
-            temp_dict['month_date'] = time_operation_point_date
-            result_data_list.append(temp_dict)
-            time_operation_point_date = time_operation_point_date + relativedelta(months=1)
-            
-      if status_condition == "new":
-        # проверяем чтобы ео не была в консервации и в удаленных
-        if sap_user_status not in sap_user_status_cons_status_list and \
-        sap_system_status not in sap_system_status_ban_list:
-          temp_dict = {}
-          temp_dict['eo_code'] = eo_code
-          temp_dict['be_code'] = be_code
-          temp_dict['be_description'] = be_description
-          temp_dict['eo_class_code'] = eo_class_code
-          temp_dict['eo_class_description'] = eo_class_description
-          temp_dict['eo_model_name'] = eo_model_name
-          temp_dict['eo_category_spec'] = eo_category_spec
-          temp_dict['type_tehniki'] = type_tehniki
-          temp_dict['marka_oborudovania'] = marka_oborudovania
-          temp_dict['cost_center'] = cost_center
-
-          
-          temp_dict['eo_description'] = eo_description
-          temp_dict['sap_system_status'] = sap_system_status
-          temp_dict['sap_user_status'] = sap_user_status          
-          temp_dict['operation_start_date'] = operation_start_date
-          temp_dict['operation_finish_date'] = operation_finish_date
-          temp_dict['month_date'] = operation_start_date_month
-          
-          temp_dict['operation_status'] = "Ввод нового"
-          temp_dict['qty'] = 1
-          temp_dict['Ввод нового'] = 1
-          
-          result_data_list.append(temp_dict)
-      
-      elif status_condition == "out": 
-        if sap_system_status not in sap_system_status_ban_list:
-          temp_dict = {}
-          temp_dict['eo_code'] = eo_code
-          temp_dict['be_code'] = be_code
-          temp_dict['be_description'] = be_description
-          temp_dict['eo_class_code'] = eo_class_code
-          temp_dict['eo_class_description'] = eo_class_description
-          temp_dict['eo_model_name'] = eo_model_name
-          temp_dict['eo_category_spec'] = eo_category_spec
-          temp_dict['type_tehniki'] = type_tehniki
-          temp_dict['marka_oborudovania'] = marka_oborudovania
-          temp_dict['cost_center'] = cost_center
-
-          
-          temp_dict['eo_description'] = eo_description
-          temp_dict['sap_system_status'] = sap_system_status
-          temp_dict['sap_user_status'] = sap_user_status 
-          temp_dict['operation_start_date'] = operation_start_date
-          temp_dict['operation_finish_date'] = operation_finish_date
-          temp_dict['month_date'] = operation_finish_date_month
-          
-          temp_dict['operation_status'] = "План на вывод"
-          temp_dict['qty'] = -1
-          temp_dict['План на вывод'] = -1
-          result_data_list.append(temp_dict)  
-
-      if status_condition == "out_of_order":
-        if sap_system_status not in sap_system_status_ban_list:
-          time_operation_point_date = operation_start_date
-          # первый день в месяце 
-          time_operation_point_date = time_operation_point_date.replace(day=1)
-          if repair_start_date != date_time_plug and repair_start_date <= operation_finish_date:
+        if status_condition == "on_balance":
+          if sap_system_status not in sap_system_status_ban_list:
+            time_operation_point_date = operation_start_date
+            # первый день в месяце 
+            time_operation_point_date = time_operation_point_date.replace(day=1)
             while time_operation_point_date <= operation_finish_date:
               temp_dict = {}
               temp_dict['eo_code'] = eo_code
@@ -397,13 +219,210 @@ def read_be_2_eo_xlsx():
               temp_dict['sap_user_status'] = sap_user_status 
               temp_dict['operation_start_date'] = operation_start_date
               temp_dict['operation_finish_date'] = operation_finish_date
-              temp_dict['operation_status'] = "Неисправен"
+              temp_dict['operation_status'] = "На балансе"
               temp_dict['qty'] = 1
-              temp_dict['Неисправен'] = 1
+              temp_dict['На балансе'] = 1
               temp_dict['month_date'] = time_operation_point_date
-              if time_operation_point_date >= repair_start_date and time_operation_point_date <= repair_finish_date:
-                result_data_list.append(temp_dict)
+              result_data_list.append(temp_dict)
               time_operation_point_date = time_operation_point_date + relativedelta(months=1)
+        
+        if status_condition == "in_operation":
+          
+          if sap_user_status not in sap_user_status_cons_status_list and \
+          operation_status_from_file != "Консервация" and \
+          sap_system_status not in sap_system_status_ban_list:
+          # operation_start_date <= datetime.strptime('31.12.2023', '%d.%m.%Y') and \
+          # operation_finish_date >= datetime.strptime('1.1.2022', '%d.%m.%Y'):
+            time_operation_point_date = operation_start_date
+            # первый день в месяце 
+            time_operation_point_date = time_operation_point_date.replace(day=1)
+            
+  
+            # if eo_code == '100000065592':
+            while time_operation_point_date <= operation_finish_date:
+              temp_dict = {}
+              temp_dict['eo_code'] = eo_code
+              temp_dict['be_code'] = be_code
+              temp_dict['be_description'] = be_description
+              temp_dict['eo_class_code'] = eo_class_code
+              temp_dict['eo_class_description'] = eo_class_description
+              temp_dict['eo_model_name'] = eo_model_name
+              temp_dict['eo_category_spec'] = eo_category_spec
+              temp_dict['type_tehniki'] = type_tehniki
+              temp_dict['marka_oborudovania'] = marka_oborudovania
+              temp_dict['cost_center'] = cost_center
+  
+              
+              temp_dict['eo_description'] = eo_description
+              temp_dict['sap_system_status'] = sap_system_status
+              temp_dict['sap_user_status'] = sap_user_status 
+              temp_dict['operation_start_date'] = operation_start_date
+              temp_dict['operation_finish_date'] = operation_finish_date
+              temp_dict['operation_status'] = "Эксплуатация"
+              temp_dict['qty'] = 1
+              temp_dict['Эксплуатация'] = 1
+              # print("time_operation_point_date: ", time_operation_point_date)
+              # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
+              # print(time_operation_point)
+              # if time_operation_point_date >=datetime.strptime('1.1.2022', '%d.%m.%Y'): #and \
+              # time_operation_point_date <= datetime.strptime('31.12.2023', '%d.%m.%Y'):
+                # print(time_operation_point)
+              temp_dict['month_date'] = time_operation_point_date
+              age = (time_operation_point_date - operation_start_date).days / 365.25
+              temp_dict['age'] = age
+              temp_dict['diagram_eo_count_in_operation'] = eo_code
+              temp_dict['diagram_year'] = time_operation_point_date.year
+                # print("time_operation_point_date: ", time_operation_point_date)
+                # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
+                # print(temp_dict)
+              # if repair_start_date == date_time_plug:
+              #   result_data_list.append(temp_dict)
+              if repair_start_date == date_time_plug:
+                result_data_list.append(temp_dict)
+              elif repair_start_date != date_time_plug and time_operation_point_date < repair_start_date:
+                result_data_list.append(temp_dict)
+              elif repair_start_date != date_time_plug and time_operation_point_date > repair_finish_date:
+                result_data_list.append(temp_dict)
+              else:
+                if eo_code == '100000072785':
+                  print(eo_code, "time_operation_point_date: ", time_operation_point_date, " repair_start_date: ", repair_start_date, " repair_finish_date:", repair_finish_date)
+              #   and repair_start_date <= operation_finish_date and time_operation_point_date <= repair_start_date:
+              #   result_data_list.append(temp_dict)
+              # elif repair_start_date != date_time_plug and repair_start_date <= operation_finish_date and time_operation_point_date >= repair_finish_date:
+              #   result_data_list.append(temp_dict)  
+                
+                  
+              # result_data_list.append(temp_dict)
+              time_operation_point_date = time_operation_point_date + relativedelta(months=1)
+  
+        if status_condition == "conservation":
+          if (sap_user_status in sap_user_status_cons_status_list or \
+          operation_status_from_file == "Консервация") and \
+          sap_system_status not in sap_system_status_ban_list:
+          # operation_start_date <= datetime.strptime('31.12.2023', '%d.%m.%Y') and \
+          # operation_finish_date >= datetime.strptime('1.1.2022', '%d.%m.%Y'):
+            time_operation_point_date = conservation_start_date
+            conservation_finish_date = operation_finish_date
+            # первый день в месяце 
+            time_operation_point_date = time_operation_point_date.replace(day=1)
+            # if eo_code == '100000065592':
+            while time_operation_point_date <= conservation_finish_date:
+              temp_dict = {}
+              temp_dict['eo_code'] = eo_code
+              temp_dict['be_code'] = be_code
+              temp_dict['be_description'] = be_description
+              temp_dict['eo_class_code'] = eo_class_code
+              temp_dict['eo_class_description'] = eo_class_description
+              temp_dict['eo_model_name'] = eo_model_name
+              temp_dict['eo_category_spec'] = eo_category_spec
+              temp_dict['type_tehniki'] = type_tehniki
+              temp_dict['marka_oborudovania'] = marka_oborudovania
+              temp_dict['cost_center'] = cost_center
+  
+              
+              temp_dict['eo_description'] = eo_description
+              temp_dict['sap_system_status'] = sap_system_status
+              temp_dict['sap_user_status'] = sap_user_status 
+              temp_dict['operation_start_date'] = operation_start_date
+              temp_dict['operation_finish_date'] = operation_finish_date
+              temp_dict['conservation_start_date'] = conservation_start_date
+              temp_dict['conservation_finish_date'] = conservation_finish_date
+              temp_dict['operation_status'] = "Консервация"
+              temp_dict['qty'] = 1
+              temp_dict['Консервация'] = 1
+              temp_dict['month_date'] = time_operation_point_date
+              result_data_list.append(temp_dict)
+              time_operation_point_date = time_operation_point_date + relativedelta(months=1)
+              
+        if status_condition == "new":
+          # проверяем чтобы ео не была в консервации и в удаленных
+          if sap_user_status not in sap_user_status_cons_status_list and \
+          sap_system_status not in sap_system_status_ban_list:
+            temp_dict = {}
+            temp_dict['eo_code'] = eo_code
+            temp_dict['be_code'] = be_code
+            temp_dict['be_description'] = be_description
+            temp_dict['eo_class_code'] = eo_class_code
+            temp_dict['eo_class_description'] = eo_class_description
+            temp_dict['eo_model_name'] = eo_model_name
+            temp_dict['eo_category_spec'] = eo_category_spec
+            temp_dict['type_tehniki'] = type_tehniki
+            temp_dict['marka_oborudovania'] = marka_oborudovania
+            temp_dict['cost_center'] = cost_center
+  
+            
+            temp_dict['eo_description'] = eo_description
+            temp_dict['sap_system_status'] = sap_system_status
+            temp_dict['sap_user_status'] = sap_user_status          
+            temp_dict['operation_start_date'] = operation_start_date
+            temp_dict['operation_finish_date'] = operation_finish_date
+            temp_dict['month_date'] = operation_start_date_month
+            
+            temp_dict['operation_status'] = "Ввод нового"
+            temp_dict['qty'] = 1
+            temp_dict['Ввод нового'] = 1
+            
+            result_data_list.append(temp_dict)
+        
+        elif status_condition == "out": 
+          if sap_system_status not in sap_system_status_ban_list:
+            temp_dict = {}
+            temp_dict['eo_code'] = eo_code
+            temp_dict['be_code'] = be_code
+            temp_dict['be_description'] = be_description
+            temp_dict['eo_class_code'] = eo_class_code
+            temp_dict['eo_class_description'] = eo_class_description
+            temp_dict['eo_model_name'] = eo_model_name
+            temp_dict['eo_category_spec'] = eo_category_spec
+            temp_dict['type_tehniki'] = type_tehniki
+            temp_dict['marka_oborudovania'] = marka_oborudovania
+            temp_dict['cost_center'] = cost_center
+  
+            
+            temp_dict['eo_description'] = eo_description
+            temp_dict['sap_system_status'] = sap_system_status
+            temp_dict['sap_user_status'] = sap_user_status 
+            temp_dict['operation_start_date'] = operation_start_date
+            temp_dict['operation_finish_date'] = operation_finish_date
+            temp_dict['month_date'] = operation_finish_date_month
+            
+            temp_dict['operation_status'] = "План на вывод"
+            temp_dict['qty'] = -1
+            temp_dict['План на вывод'] = -1
+            result_data_list.append(temp_dict)  
+  
+        if status_condition == "out_of_order":
+          if sap_system_status not in sap_system_status_ban_list:
+            time_operation_point_date = operation_start_date
+            # первый день в месяце 
+            time_operation_point_date = time_operation_point_date.replace(day=1)
+            if repair_start_date != date_time_plug and repair_start_date <= operation_finish_date:
+              while time_operation_point_date <= operation_finish_date:
+                temp_dict = {}
+                temp_dict['eo_code'] = eo_code
+                temp_dict['be_code'] = be_code
+           
+                temp_dict['be_description'] = be_description
+                temp_dict['eo_class_code'] = eo_class_code
+                temp_dict['eo_class_description'] = eo_class_description
+                temp_dict['eo_model_name'] = eo_model_name
+                temp_dict['eo_category_spec'] = eo_category_spec
+                temp_dict['type_tehniki'] = type_tehniki
+                temp_dict['marka_oborudovania'] = marka_oborudovania
+                temp_dict['cost_center'] = cost_center
+                
+                temp_dict['eo_description'] = eo_description
+                temp_dict['sap_system_status'] = sap_system_status
+                temp_dict['sap_user_status'] = sap_user_status 
+                temp_dict['operation_start_date'] = operation_start_date
+                temp_dict['operation_finish_date'] = operation_finish_date
+                temp_dict['operation_status'] = "Неисправен"
+                temp_dict['qty'] = 1
+                temp_dict['Неисправен'] = 1
+                temp_dict['month_date'] = time_operation_point_date
+                if time_operation_point_date >= repair_start_date and time_operation_point_date <= repair_finish_date:
+                  result_data_list.append(temp_dict)
+                time_operation_point_date = time_operation_point_date + relativedelta(months=1)
         
 
   iter_df_temp = pd.DataFrame(result_data_list) 
