@@ -10,6 +10,7 @@ import openpyxl
 
 db = extensions.db
 
+plug = 'plug'
 date_time_plug = '1.1.2199'
 date_time_plug = datetime.strptime(date_time_plug, '%d.%m.%Y')
 
@@ -32,13 +33,28 @@ def read_be_2_eo_xlsx():
   # читаем загруженный файл 
   be_eo_raw_data = pd.read_excel('uploads/be_eo_2_data.xlsx', sheet_name='be_eo_data', index_col = False)
   be_eo_data = be_eo_raw_data.rename(columns=be_data_columns_to_master_columns)
+  
+  # список колонок
+  update_eo_column_list = list(be_eo_data.columns)
 
   be_eo_data['eo_code'] = be_eo_data['eo_code'].astype(str)
   be_eo_data['operation_finish_date_iteration_0'] = pd.to_datetime(be_eo_data['operation_finish_date_iteration_0'], format='%d.%m.%Y')
   be_eo_data['operation_finish_date_iteration_1'] = pd.to_datetime(be_eo_data['operation_finish_date_iteration_1'], format='%d.%m.%Y')
   be_eo_data['operation_finish_date_iteration_2'] = pd.to_datetime(be_eo_data['operation_finish_date_iteration_2'], format='%d.%m.%Y')
   be_eo_data['conservation_start_date'] = pd.to_datetime(be_eo_data['conservation_start_date'], format='%d.%m.%Y')
-  be_eo_data['conservation_start_date'] = pd.to_datetime(be_eo_data['conservation_start_date'], format='%d.%m.%Y')
+  be_eo_data['conservation_finish_date'] = pd.to_datetime(be_eo_data['conservation_finish_date'], format='%d.%m.%Y')
+  be_eo_data['repair_start_date'] = pd.to_datetime(be_eo_data['repair_start_date'], format='%d.%m.%Y')
+  be_eo_data['repair_finish_date'] = pd.to_datetime(be_eo_data['repair_finish_date'], format='%d.%m.%Y')
+
+  # пишем заглушки в поля conservation_finish_date, repair_start_date, repair_finish_date
+  
+  be_eo_data['conservation_finish_date'].fillna(date_time_plug, inplace = True)
+  be_eo_data['repair_start_date'].fillna(date_time_plug, inplace = True)
+  be_eo_data['repair_finish_date'].fillna(date_time_plug, inplace = True)
+  be_eo_data['os'].fillna(plug, inplace = True)
+
+  be_eo_data.to_csv('temp_data/be_eo_data_temp_delete.csv')
+  
 
   # получаем данные из мастер-файла
   con = sqlite3.connect("database/datab.db")
@@ -124,6 +140,7 @@ def read_be_2_eo_xlsx():
     be_master_data['operation_finish_date_month'] = ((be_master_data['operation_finish_date'] + pd.offsets.MonthEnd(0) - pd.offsets.MonthBegin(1)).dt.floor('d'))
 
   result_data_list = []
+  slide_1_diagram_data = []
   i=0
   lenght = len(be_master_data)
   for row in be_master_data.itertuples():
@@ -160,6 +177,9 @@ def read_be_2_eo_xlsx():
     operation_finish_date = getattr(row, 'operation_finish_date')
     operation_finish_date_month = getattr(row, 'operation_finish_date_month')
     conservation_start_date = getattr(row, 'conservation_start_date')
+    repair_start_date = getattr(row, 'repair_start_date')
+    repair_finish_date = getattr(row, 'repair_finish_date')
+    
     
     # сначала определяем статус ввода в эксплуатацию
     status_condition_dict = {
@@ -168,7 +188,8 @@ def read_be_2_eo_xlsx():
         "conservation":"Консервация",
         "remake":"Переоборудование",
         "out":"План на вывод",
-        "in_operation":"Эксплуатация"
+        "in_operation":"Эксплуатация",
+        "out_of_order":"Неисправно"
       }
     for status_condition, status_condition_rus in status_condition_dict.items():
       
@@ -213,6 +234,8 @@ def read_be_2_eo_xlsx():
           time_operation_point_date = operation_start_date
           # первый день в месяце 
           time_operation_point_date = time_operation_point_date.replace(day=1)
+          
+
           # if eo_code == '100000065592':
           while time_operation_point_date <= operation_finish_date:
             temp_dict = {}
@@ -243,6 +266,10 @@ def read_be_2_eo_xlsx():
             # time_operation_point_date <= datetime.strptime('31.12.2023', '%d.%m.%Y'):
               # print(time_operation_point)
             temp_dict['month_date'] = time_operation_point_date
+            age = (time_operation_point_date - operation_start_date).days / 365.25
+            temp_dict['age'] = age
+            temp_dict['diagram_eo_count_in_operation'] = eo_code
+            temp_dict['diagram_year'] = time_operation_point_date.year
               # print("time_operation_point_date: ", time_operation_point_date)
               # print("eo_code: ", eo_code, "operation_start_date: ", operation_start_date, "operation_finish_date: ", operation_finish_date)
               # print(temp_dict)
@@ -345,6 +372,38 @@ def read_be_2_eo_xlsx():
           temp_dict['План на вывод'] = -1
           result_data_list.append(temp_dict)  
 
+      if status_condition == "out_of_order":
+        if sap_system_status not in sap_system_status_ban_list:
+          time_operation_point_date = operation_start_date
+          # первый день в месяце 
+          time_operation_point_date = time_operation_point_date.replace(day=1)
+          if repair_start_date != date_time_plug and repair_start_date <= operation_finish_date:
+            while time_operation_point_date <= operation_finish_date:
+              temp_dict = {}
+              temp_dict['eo_code'] = eo_code
+              temp_dict['be_code'] = be_code
+         
+              temp_dict['be_description'] = be_description
+              temp_dict['eo_class_code'] = eo_class_code
+              temp_dict['eo_class_description'] = eo_class_description
+              temp_dict['eo_model_name'] = eo_model_name
+              temp_dict['eo_category_spec'] = eo_category_spec
+              temp_dict['type_tehniki'] = type_tehniki
+              temp_dict['marka_oborudovania'] = marka_oborudovania
+              temp_dict['cost_center'] = cost_center
+              
+              temp_dict['eo_description'] = eo_description
+              temp_dict['sap_system_status'] = sap_system_status
+              temp_dict['sap_user_status'] = sap_user_status 
+              temp_dict['operation_start_date'] = operation_start_date
+              temp_dict['operation_finish_date'] = operation_finish_date
+              temp_dict['operation_status'] = "Неисправен"
+              temp_dict['qty'] = 1
+              temp_dict['Неисправен'] = 1
+              temp_dict['month_date'] = time_operation_point_date
+              if time_operation_point_date >= repair_start_date and time_operation_point_date <= repair_finish_date:
+                result_data_list.append(temp_dict)
+              time_operation_point_date = time_operation_point_date + relativedelta(months=1)
         
 
   iter_df_temp = pd.DataFrame(result_data_list) 
@@ -355,8 +414,8 @@ def read_be_2_eo_xlsx():
   # iter_df_temp = iter_df_temp.rename(columns=master_data_to_ru_columns)
   iter_df_temp.reset_index()
   
-  list_of_be = list(set(iter_df_temp['be_code']))
-  # list_of_be = [1100]
+  # list_of_be = list(set(iter_df_temp['be_code']))
+  list_of_be = [1100]
   for be_code in list_of_be:
     df = iter_df_temp.loc[iter_df_temp['be_code']==be_code]
     
