@@ -144,7 +144,7 @@ def read_be_2_eo_xlsx():
     be_master_data['repair_start_date'].fillna(date_time_plug, inplace = True)
     be_master_data['repair_finish_date'].fillna(date_time_plug, inplace = True)
     be_master_data['os'].fillna(plug, inplace = True)
-    be_master_data.to_csv('temp_data/be_master_data_delete.csv')
+    # be_master_data.to_csv('temp_data/be_master_data_delete.csv')
     for row in be_master_data.itertuples():
       i=i+1
       # print("eo ", ", ", i, " из ", lenght)
@@ -163,6 +163,7 @@ def read_be_2_eo_xlsx():
       gar_no = getattr(row, "gar_no")
       constr_type = getattr(row, "constr_type")
       constr_type_descr = getattr(row, "constr_type_descr")
+      os = getattr(row, "os")
       # operation_status_rus = getattr(row, "operation_status")
       sap_user_status = getattr(row, "sap_user_status")
       sap_system_status = getattr(row, "sap_system_status")
@@ -213,6 +214,8 @@ def read_be_2_eo_xlsx():
               temp_dict['type_tehniki'] = type_tehniki
               temp_dict['marka_oborudovania'] = marka_oborudovania
               temp_dict['cost_center'] = cost_center
+              if os != 'plug':
+                temp_dict['os'] = os
               
               temp_dict['eo_description'] = eo_description
               temp_dict['sap_system_status'] = sap_system_status
@@ -251,6 +254,8 @@ def read_be_2_eo_xlsx():
               temp_dict['type_tehniki'] = type_tehniki
               temp_dict['marka_oborudovania'] = marka_oborudovania
               temp_dict['cost_center'] = cost_center
+              if os != 'plug':
+                temp_dict['os'] = os
   
               
               temp_dict['eo_description'] = eo_description
@@ -318,6 +323,8 @@ def read_be_2_eo_xlsx():
               temp_dict['type_tehniki'] = type_tehniki
               temp_dict['marka_oborudovania'] = marka_oborudovania
               temp_dict['cost_center'] = cost_center
+              if os != 'plug':
+                temp_dict['os'] = os
   
               
               temp_dict['eo_description'] = eo_description
@@ -349,6 +356,8 @@ def read_be_2_eo_xlsx():
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
             temp_dict['cost_center'] = cost_center
+            if os != 'plug':
+                temp_dict['os'] = os
   
             
             temp_dict['eo_description'] = eo_description
@@ -377,6 +386,8 @@ def read_be_2_eo_xlsx():
             temp_dict['type_tehniki'] = type_tehniki
             temp_dict['marka_oborudovania'] = marka_oborudovania
             temp_dict['cost_center'] = cost_center
+            if os != 'plug':
+                temp_dict['os'] = os
   
             
             temp_dict['eo_description'] = eo_description
@@ -410,6 +421,8 @@ def read_be_2_eo_xlsx():
                 temp_dict['type_tehniki'] = type_tehniki
                 temp_dict['marka_oborudovania'] = marka_oborudovania
                 temp_dict['cost_center'] = cost_center
+                if os != 'plug':
+                  temp_dict['os'] = os
                 
                 temp_dict['eo_description'] = eo_description
                 temp_dict['sap_system_status'] = sap_system_status
