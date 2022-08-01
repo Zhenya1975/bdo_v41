@@ -451,6 +451,9 @@ def read_be_2_eo_xlsx():
   
   list_of_be = list(set(iter_df_temp['be_code']))
   # list_of_be = [1100]
+
+
+  
   for be_code in list_of_be:
     df = iter_df_temp.loc[iter_df_temp['be_code']==be_code]
     

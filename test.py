@@ -82,12 +82,12 @@ def insert_record():
     cursor = con.cursor()
     
     # insert_record_sql = "INSERT INTO operation_statusDB (operation_status_code, operation_status_description, sap_operation_status) VALUES ('out_of_operation', 'удалено', 'МТКУ');"
-    insert_record_sql = "INSERT INTO eo_class_DB (eo_class_code, eo_class_description) VALUES ('E01_04', 'Тягачи-буксировщики');"
+    insert_record_sql = "INSERT INTO eo_class_DB (eo_class_code, eo_class_description) VALUES ('E17_10', 'Погрузчики вилочные');"
     cursor.execute(insert_record_sql)
     con.commit()
     cursor.close()
   
-# insert_record()
+insert_record()
 def update_records():
   with app.app_context():
     con = sqlite3.connect("database/datab.db")

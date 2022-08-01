@@ -151,6 +151,11 @@ def read_sap_eo_xlsx():
       if 'teh_mesto' in sap_eo_column_list:
         eo_master_data.teh_mesto = getattr(row, "teh_mesto")
 
+      if 'eo_class_code' in sap_eo_column_list:
+        eo_master_data.eo_class_code = getattr(row, "eo_class_code")  
+
+        
+
       if 'gar_no' in sap_eo_column_list:
         eo_master_data.gar_no = getattr(row, "gar_no")
 
