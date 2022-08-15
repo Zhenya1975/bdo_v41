@@ -26,6 +26,10 @@ iterations_dict = {
   "operation_finish_date_iteration_2":"Дата вывода 2 - итерация продления"
 }
 
+iterations_dict = {
+  "operation_finish_date_iteration_2":"Дата вывода 2 - итерация продления"
+}
+
 
 def read_be_2_eo_xlsx():
   # читаем загруженный файл 

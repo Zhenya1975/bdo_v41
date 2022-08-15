@@ -85,3 +85,11 @@ operaton_status_translation = {
   "ТУ списано":"scrapped"
 }
 
+ktg_data_columns_to_master_columns = {
+  'ЕО':'eo_code',
+  'ПланКТГ':'plan_ktg',
+  'Текущий КТГ для FS-PER':'current_ktg_for_fsper',
+  'Утв. КТГ':'accepted_ktg',
+  'ФактКТГ':'fact_ktg'
+}
+

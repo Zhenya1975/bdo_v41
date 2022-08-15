@@ -7,6 +7,6 @@ from datetime import datetime
 
 # calendar_operation_status_calc.calendar_operation_status_calc()
 # generate_eo_diagram_data.generate_eo_diagram_data()
-eo_data_calculation.eo_data_calculation()
+# eo_data_calculation.eo_data_calculation()
 
-# read_be_eo_xlsx_file_v4.read_be_2_eo_xlsx()
+read_be_eo_xlsx_file_v4.read_be_2_eo_xlsx()
